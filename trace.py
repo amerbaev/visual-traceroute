@@ -1,7 +1,7 @@
 import socket
 import sys
 
-j_ip = list() 
+
 class TraceRoute(object):
    
     BADDR = "0.0.0.0" # default bind address - (all IPs)
@@ -10,7 +10,7 @@ class TraceRoute(object):
     UDP = socket.getprotobyname('udp')
  
     desternation = ""
-    ttl = 0 # we inrecement this by one each time.    
+    ttl = 0 # we inrecement this bgit 
  
     # sockets
     reciever = None
@@ -27,6 +27,7 @@ class TraceRoute(object):
        
         # bind to reciever so we can listen for replies
         self.reciever.bind((self.BADDR, self.PORT))
+        self.reciever.settimeout(1)
  
     def next_server(self):
         """ Connects to next server 1 hop away from current server (i.e. server[ttl + 1]) """
@@ -39,8 +40,13 @@ class TraceRoute(object):
         self.sender.setsockopt(socket.SOL_IP, socket.IP_TTL, self.ttl)
        
         self.sender.sendto("", (self.desternation, self.PORT))
-        current_server = self.reciever.recvfrom(512)[1][0] # get 512 bytes from the reciever
-        self.display(current_server)
+        
+        try:
+            current_server = self.reciever.recvfrom(512)[1][0] # get 512 bytes from the reciever
+            self.display(current_server)
+        except socket.error:
+            print "***"
+            return
  
         if current_server == self.desternation:
             self.finished = True
@@ -72,14 +78,14 @@ class TraceRoute(object):
  
 if __name__ == "__main__":
     # lets get the address from the commandline args
+    j_ip = list()
     if len(sys.argv) <= 1:
         # nothing been specified
         print "You need to give an address"
         print "%s <server>" % sys.argv[0]
         sys.exit() # we can't do anything.
-   
+    
     tracert = TraceRoute(sys.argv[1])
     while not tracert.finished:
         tracert.next_server()
-
     print j_ip
