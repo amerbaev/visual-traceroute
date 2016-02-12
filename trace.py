@@ -1,10 +1,9 @@
 # encoding utf-8
 
-import socket
 import json
+import socket
 import sys
 import IPy
-
 
 class TraceRoute(object):
     BADDR = "0.0.0.0"  # default bind address - (all IPs)
@@ -62,7 +61,9 @@ class TraceRoute(object):
     def display(self, address):
         """ Gets the hostname (if we can) and displays """
         global j_ip
-        j_ip.append(address)
+        if IPy.IP.iptype(address) == 'PUBLIC':
+            j_ip.append(address)
+
         try:
             name = socket.gethostbyaddr(address)[0]
             print "%s" % (address)
