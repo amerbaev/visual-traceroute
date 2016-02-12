@@ -61,8 +61,8 @@ class TraceRoute(object):
     def display(self, address):
         """ Gets the hostname (if we can) and displays """
         global j_ip
-        if IPy.IP.iptype(address) == 'PUBLIC':
-            j_ip.append(IPy.IP(address))
+        if IPy.IP.iptype(IPy.IP(address)) == 'PUBLIC':
+            j_ip.append(address)
 
         try:
             name = socket.gethostbyaddr(address)[0]
