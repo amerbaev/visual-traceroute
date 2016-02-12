@@ -3,6 +3,7 @@
 import socket
 import json
 import sys
+import IPy
 
 
 class TraceRoute(object):
@@ -98,6 +99,6 @@ if __name__ == "__main__":
         tracert.next_server()
 
     if bool(j_ip):
-        print json.dumps(j_ip)
+        print json.dumps( {'address': sys.argv[1], 'hops':j_ip}, indent=4, separators=(',', ':') )
     else:
         print "Hops list is empty"
