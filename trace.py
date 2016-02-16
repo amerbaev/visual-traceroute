@@ -5,6 +5,7 @@ import socket
 import sys
 import IPy
 
+
 class TraceRoute(object):
     BADDR = "0.0.0.0"  # default bind address - (all IPs)
     PORT = 33434  # default port
@@ -89,17 +90,22 @@ class TraceRoute(object):
 if __name__ == "__main__":
     # lets get the address from the commandline args
     j_ip = list()
-    if not bool(sys.argv[1]):
-        # nothing been specified
-        print "You need to give an address"
-        print "%s <server>" % sys.argv[0]
-        sys.exit()  # we can't do anything.
 
-    tracert = TraceRoute(sys.argv[1])
-    while not tracert.finished:
-        tracert.next_server()
+    ip_addr_list = ['78.41.145.34', '193.191.245.244', '212.122.160.100', '185.20.29.90', '212.31.118.26',
+                    '89.233.150.22', '213.174.72.92', '213.184.53.253', '131.207.14.37', '185.13.160.61',
+                    '46.243.126.120', '195.251.32.78', '195.228.130.17', '54.154.87.28', '195.66.10.19',
+                    '212.70.163.182', '195.182.89.166', '176.34.240.169', '217.71.177.230', '178.22.85.24',
+                    '46.28.14.4', '192.230.78.192', '85.120.75.150', '195.49.188.138', '84.39.223.151',
+                    '193.146.141.234', '88.221.133.41', '23.235.43.144']
 
-    if bool(j_ip):
-        print json.dumps( {'address': sys.argv[1], 'hops':j_ip}, indent=4, separators=(',', ':') )
-    else:
-        print "Hops list is empty"
+    trace_list = list()
+
+    for addr in ip_addr_list:
+        tracert = TraceRoute(addr)
+        while not tracert.finished:
+            tracert.next_server()
+        if bool(j_ip):
+            trace_list.append({'address': addr, 'hops': j_ip})
+            j_ip = list()
+
+    print json.dumps(trace_list, indent=4, separators=(',', ':'))
