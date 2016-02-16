@@ -35,7 +35,7 @@ class TraceRoute(object):
 
         # bind to reciever so we can listen for replies
         self.reciever.bind((self.BADDR, self.PORT))
-        self.reciever.settimeout(5)
+        self.reciever.settimeout(1)
 
     def next_server(self):
         """ Connects to next server 1 hop away from current server (i.e. server[ttl + 1]) """
@@ -45,6 +45,9 @@ class TraceRoute(object):
 
         # first job increment the ttl on the socket
         self.ttl += 1
+        if self.ttl >= 30:
+            self.finished = True
+
         self.sender.setsockopt(socket.SOL_IP, socket.IP_TTL, self.ttl)
 
         self.sender.sendto("", (self.desternation, self.PORT))
@@ -91,12 +94,12 @@ if __name__ == "__main__":
     # lets get the address from the commandline args
     j_ip = list()
 
-    ip_addr_list = ['78.41.145.34', '193.191.245.244', '212.122.160.100', '185.20.29.90', '212.31.118.26',
-                    '89.233.150.22', '213.174.72.92', '213.184.53.253', '131.207.14.37', '185.13.160.61',
-                    '46.243.126.120', '195.251.32.78', '195.228.130.17', '54.154.87.28', '195.66.10.19',
-                    '212.70.163.182', '195.182.89.166', '176.34.240.169', '217.71.177.230', '178.22.85.24',
-                    '46.28.14.4', '192.230.78.192', '85.120.75.150', '195.49.188.138', '84.39.223.151',
-                    '193.146.141.234', '88.221.133.41', '23.235.43.144']
+    ip_addr_list = ['www.bka.gv.at', 'www.belgium.be', 'www.government.bg', 'www.vlada.hr', 'www.cyprus.gov.cy',
+                    'www.vlada.cz', 'denmark.dk', 'valitsus.ee', 'valtioneuvosto.fi', 'www.gouvernement.fr',
+                    'www.bundesregierung.de', 'www.parliament.gr', 'www.kormany.hu', 'www.gov.ie', 'www.governo.it',
+                    'www.mk.gov.lv', 'lrv.lt', 'www.gouvernement.lu', 'www.gov.mt', 'www.government.nl',
+                    'www.premier.gov.pl', 'www.portugal.gov.pt', 'gov.ro', 'www.vlada.gov.sk', 'www.vlada.si',
+                    'www.lamoncloa.gob.es', 'www.government.se', 'www.gov.uk', ]
 
     trace_list = list()
 
