@@ -4,6 +4,8 @@ import json
 import socket
 import sys
 import IPy
+import geoip2.database
+import draw_py3
 
 
 class TraceRoute(object):
@@ -45,8 +47,9 @@ class TraceRoute(object):
 
         # first job increment the ttl on the socket
         self.ttl += 1
-        if self.ttl >= 30:
+        if self.ttl >= 20:
             self.finished = True
+            j_ip.append(self.desternation)
 
         self.sender.setsockopt(socket.SOL_IP, socket.IP_TTL, self.ttl)
 
@@ -65,7 +68,7 @@ class TraceRoute(object):
     def display(self, address):
         """ Gets the hostname (if we can) and displays """
         global j_ip
-        if IPy.IP.iptype(IPy.IP(address)) == 'PUBLIC':
+        if IPy.IP.iptype(IPy.IP(address)) == 'PUBLIC' and address not in j_ip:
             j_ip.append(address)
 
         try:
@@ -95,11 +98,13 @@ if __name__ == "__main__":
     j_ip = list()
 
     ip_addr_list = ['www.bka.gv.at', 'www.belgium.be', 'www.government.bg', 'www.vlada.hr', 'www.cyprus.gov.cy',
-                    'www.vlada.cz', 'denmark.dk', 'valitsus.ee', 'valtioneuvosto.fi', 'www.gouvernement.fr',
-                    'www.bundesregierung.de', 'www.parliament.gr', 'www.kormany.hu', 'www.gov.ie', 'www.governo.it',
-                    'www.mk.gov.lv', 'lrv.lt', 'www.gouvernement.lu', 'www.gov.mt', 'www.government.nl',
-                    'www.premier.gov.pl', 'www.portugal.gov.pt', 'gov.ro', 'www.vlada.gov.sk', 'www.vlada.si',
-                    'www.lamoncloa.gob.es', 'www.government.se', 'www.gov.uk', ]
+                     'www.vlada.cz', 'denmark.dk', 'valitsus.ee', 'valtioneuvosto.fi', 'www.gouvernement.fr',
+                     'www.bundesregierung.de', 'www.parliament.gr', 'www.kormany.hu', 'www.gov.ie', 'www.governo.it',
+                     'www.mk.gov.lv', 'lrv.lt', 'www.gouvernement.lu', 'www.gov.mt', 'www.government.nl',
+                     'www.premier.gov.pl', 'www.portugal.gov.pt', 'gov.ro', 'www.vlada.gov.sk', 'www.vlada.si',
+                     'www.lamoncloa.gob.es', 'www.government.se', 'www.gov.uk']
+
+    # ip_addr_list = ['www.bka.gv.at', 'www.belgium.be']
 
     trace_list = list()
 
@@ -111,4 +116,12 @@ if __name__ == "__main__":
             trace_list.append({'address': addr, 'hops': j_ip})
             j_ip = list()
 
-    print json.dumps(trace_list, indent=4, separators=(',', ':'))
+    reader = geoip2.database.Reader('./geoip/GeoLite2-City.mmdb')
+    for key, i in enumerate(trace_list):
+        for k, j in enumerate(i['hops']):
+            print(j)
+            response = reader.city(j)
+            trace_list[key]['hops'][k] = {'ip': j, 'lat': response.location.latitude, 'lon': response.location.longitude}
+    # print json.dumps(trace_list, separators=(',', ':'))
+    draw_py3.generate(json.dumps(trace_list, separators=(',', ':')))
+    # print json.dumps(trace_list, indent=4, separators=(',', ':'))
